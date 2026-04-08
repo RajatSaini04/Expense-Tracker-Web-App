@@ -1,4 +1,4 @@
-const Income  = require('../models/Income');
+const Income = require('../models/Income');
 const xlsx = require('xlsx'); // Import the xlsx library for Excel file handling
 const path = require('path'); // Import the path module for file handling
 
@@ -9,32 +9,32 @@ exports.addIncome = async (req, res) => {
     const userId = req.user._id; // Get user ID from the request
 
     try {
-    const { icon ,source, amount, date } = req.body; // Destructure the request body
-    //validation: check for missing fields
-    if(!source || !amount || !date){
-        return res.status(400).json({
-            success: false,
-            message: 'Please provide all required fields',
-        });
-    }
-     
-    // Create a new income source
-    const newIncome = await Income.create({
-        userId,
-        icon,
-        source,
-        amount,
-        date:new Date(date), // Convert date to a Date object
-    
-    });
+        const { icon, source, amount, date } = req.body; // Destructure the request body
+        //validation: check for missing fields
+        if (!source || !amount || !date) {
+            return res.status(400).json({
+                success: false,
+                message: 'Please provide all required fields',
+            });
+        }
 
-    await newIncome.save(); // Save the new income source to the database
-    res.status(201).json({
-        success: true,
-        message: 'Income source added successfully',
-        data: newIncome, // Return the created income source 
-    })
-}catch (error) {
+        // Create a new income source
+        const newIncome = await Income.create({
+            userId,
+            icon,
+            source,
+            amount,
+            date: new Date(date), // Convert date to a Date object
+
+        });
+
+        await newIncome.save(); // Save the new income source to the database
+        res.status(201).json({
+            success: true,
+            message: 'Income source added successfully',
+            data: newIncome, // Return the created income source 
+        })
+    } catch (error) {
         console.error(error); // Log the error for debugging
         res.status(500).json({
             success: false,
@@ -42,7 +42,7 @@ exports.addIncome = async (req, res) => {
             error: error.message, // Return the error message
         });
     }
-} 
+}
 
 // GET ALL INCOME SOURCE
 exports.getAllIncome = async (req, res) => {
@@ -70,17 +70,17 @@ exports.downloadIncomeExcel = async (req, res) => {
     const userId = req.user._id; // Get user ID from the request
 
     try {
-        const income = await Income.find({ userId }).sort({date:-1}); 
-        
+        const income = await Income.find({ userId }).sort({ date: -1 });
+
         //prepare data for Excel 
 
-        const data = income.map((item)=>({
-            Source : item.source,
-            Amount : item.amount,
-            Date : item.date.toLocaleDateString(), // Format date as a string
+        const data = income.map((item) => ({
+            Source: item.source,
+            Amount: item.amount,
+            Date: item.date.toLocaleDateString(), // Format date as a string
         }));
-         // Fetch all income sources for the user
-        const wb = xlsx.utils.book_new() ;// Create a new workbook
+        // Fetch all income sources for the user
+        const wb = xlsx.utils.book_new();// Create a new workbook
         const ws = xlsx.utils.json_to_sheet(data); // Add a new worksheet
         xlsx.utils.book_append_sheet(wb, ws, 'Income'); // Append the worksheet to the workbook
         const filePath = path.join(__dirname, '../downloads/income_details.xlsx'); // store in separate folder

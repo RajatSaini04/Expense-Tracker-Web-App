@@ -11,9 +11,9 @@ const generateToken = (id) => {
 // Register User
 exports.registerUser = async (req, res) => {
     try {
-        const { fullname, email, password, profileImageUrl } = req.body;
-
-     //   Validate input
+        const { fullname, email, password, profileImageUrl } = req.body || {};
+        console.log(req.body);
+        //   Validate input
         if (!fullname || !email || !password) {
             return res.status(400).json({
                 success: false,
@@ -41,7 +41,7 @@ exports.registerUser = async (req, res) => {
         // Send response
         res.status(201).json({
             id: user._id,
-            user, 
+            user,
             token: generateToken(user._id),
         });
 
@@ -54,27 +54,26 @@ exports.registerUser = async (req, res) => {
     }
 };
 
-
+// Login User
 exports.loginUser = async (req, res) => {
-    const { email, password } = req.body;
+    const { email, password } = req.body || {};
     if (!email || !password) {
         return res.status(400).json({
             success: false,
             message: 'Please provide email and password',
         });
     }
-    try
-    {
+    try {
         const user = await User
             .findOne({ email });
-            if (!user || !(await user.comparePassword(password))) {
-                return res.status(401).json({
-                    success: false,
-                    message: 'Invalid email or password',
-                });
-            }
-res.status(200).json({
-           
+        if (!user || !(await user.comparePassword(password))) {
+            return res.status(401).json({
+                success: false,
+                message: 'Invalid email or password',
+            });
+        }
+        res.status(200).json({
+
             id: user._id,
             user,
             token: generateToken(user._id),
@@ -89,7 +88,7 @@ res.status(200).json({
     }
 };
 
-
+// Get USer Info
 exports.getUserInfo = async (req, res) => {
     try {
         const user = await User.findById(req.user.id).select('-password');
@@ -110,5 +109,4 @@ exports.getUserInfo = async (req, res) => {
             error: error.message,
         });
     }
-    
 };

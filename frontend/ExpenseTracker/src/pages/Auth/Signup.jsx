@@ -8,7 +8,7 @@ import { API_PATHS } from '../../utils/apiPaths.js';
 import ProfilePhotoSelector from "../../components/Inputs/ProfilePhotoSelector";
 import { useContext } from 'react'; // 👈 Add this if not already imported
 import { UserContext } from '../../context/UserContext.jsx'; // ✅ Correct import
-import uploadImage  from "../../utils/uploadImage";
+import uploadImage from "../../utils/uploadImage";
 
 
 const SignUp = () => {
@@ -17,7 +17,7 @@ const SignUp = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
-const { updateUser } = useContext(UserContext);
+  const { updateUser } = useContext(UserContext);
   const navigate = useNavigate();
 
   // Handle Sign Up Form Submit
@@ -42,49 +42,44 @@ const { updateUser } = useContext(UserContext);
     setError("");
 
     // Sign Up API Call
- try {
-
-  //upload image if present 
-
-  // if (!profilePic) {
-  //   const imgUploadRes= await uploadImage(profilePic);
-  //   profileImageUrl = imgUploadRes.imageUrl || ""; // Assuming the response contains the image URL
-  // }
-  if (profilePic) {
     try {
-      const imgUploadRes = await uploadImage(profilePic);
-      profileImageUrl = imgUploadRes.imageUrl || "";
+
+      //upload image if present 
+      if (profilePic) {
+        try {
+          const imgUploadRes = await uploadImage(profilePic);
+          profileImageUrl = imgUploadRes.imageUrl || "";
+        } catch (error) {
+          console.error("Image upload failed:", error);
+          profileImageUrl = "";
+        }
+      }
+
+
+      const response = await axiosInstance.post(API_PATHS.AUTH.REGISTER, {
+        fullName,
+        email,
+        password,
+        profileImageUrl,
+
+      });
+      const { token, user } = response.data;
+
+      if (token) {
+        localStorage.setItem("token", token);
+        updateUser(user); // Assuming you have a function to update user context
+        navigate("/dashboard");
+      }
     } catch (error) {
-      console.error("Image upload failed:", error);
-      profileImageUrl = "";
+      if (error.response && error.response.data.message) {
+        setError(error.response.data.message);
+      } else {
+        setError("Something went wrong. Please try again.");
+      }
     }
-  }
-  
-
-  const response = await axiosInstance.post(API_PATHS.AUTH.REGISTER, {
-      fullName,
-      email,
-      password,
-      profileImageUrl,
-      
-    });
-    const { token, user } = response.data;
-
-    if (token) {
-      localStorage.setItem("token", token);
-      updateUser(user); // Assuming you have a function to update user context
-      navigate("/dashboard");
-    }
-  } catch (error) {
-    if (error.response && error.response.data.message) {
-      setError(error.response.data.message);
-    } else {
-      setError("Something went wrong. Please try again.");
-    }
-  }
 
   };
- 
+
   return (
     <AuthLayout>
       <div className='lg:w-[100%] h-auto md:h-full mt-10 md:mt-0 flex flex-col justify-center'>

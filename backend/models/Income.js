@@ -1,6 +1,4 @@
-
 const mongoose = require('mongoose');
-
 
 const IncomeSchema = mongoose.Schema({
     userId:{
@@ -11,7 +9,6 @@ const IncomeSchema = mongoose.Schema({
     },
     icon:{
         type: String
-      
       
     },
     source:{
