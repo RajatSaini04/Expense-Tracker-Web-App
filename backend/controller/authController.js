@@ -11,10 +11,10 @@ const generateToken = (id) => {
 // Register User
 exports.registerUser = async (req, res) => {
     try {
-        const { fullname, email, password, profileImageUrl } = req.body || {};
+        const { fullName, email, password, profileImageUrl } = req.body || {};
         console.log(req.body);
         //   Validate input
-        if (!fullname || !email || !password) {
+        if (!fullName || !email || !password) {
             return res.status(400).json({
                 success: false,
                 message: 'Please provide all required fields',
@@ -32,7 +32,7 @@ exports.registerUser = async (req, res) => {
 
         // Create new user
         const user = await User.create({
-            fullname,
+            fullName,
             email,
             password,
             profileImageUrl,
