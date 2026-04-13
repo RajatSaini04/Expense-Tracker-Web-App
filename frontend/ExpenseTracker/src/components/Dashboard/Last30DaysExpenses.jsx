@@ -6,12 +6,11 @@ import { prepareExpenseBarChardata } from '../../utils/helper';
 import CustomBarChart from '../Charts/CustomBarChart';
 
 const Last30DaysExpenses = ({ data }) => {
-  const [charData,setCharData]=useState([]);
+  const [chartData,setChartData]=useState([]);
 
   useEffect(()=>{
     const result=prepareExpenseBarChardata(data);
-    setCharData(result);
-
+    setChartData(result);
     return()=>{}
   
   },[data]);
@@ -20,9 +19,9 @@ const Last30DaysExpenses = ({ data }) => {
     <div className='card col-span-1'>
       <div className='flex items-center justify-between'>
         <h5 className='text-lg'>Last 30 Days Expenses</h5>
-    
+
       </div>
-      <CustomBarChart data={charData}/>
+      <CustomBarChart data={chartData}/>
 
       <div className='mt-6'>
         {data?.slice(0, 5)?.map((expense) => (

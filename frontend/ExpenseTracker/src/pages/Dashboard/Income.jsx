@@ -154,61 +154,62 @@ const Income = () => {
   const [openAddIncomeModal, setOpenAddIncomeModal] = useState(false);
 
   // Get all income details
-  const fetchIncomeDetails = async () => {
-    if (loading) return;
+const fetchIncomeDetails = async () => {
+  if (loading) return;
 
-    setLoading(true);
-    try {
-      const response = await axiosInstance.get(`${API_PATHS.INCOME.GET_ALL_INCOME}`);
+  setLoading(true);
+  try {
+    const response = await axiosInstance.get(API_PATHS.INCOME.GET_ALL_INCOME);
 
-      if (Array.isArray(response?.data?.data)) {
-        setIncomeData(response.data.data);
-      } else {
-        console.error("Income data format incorrect:", response.data);
-        setIncomeData([]);
-      }
-    } catch (error) {
-      console.log("Something went wrong. Please try again.", error);
-      toast.error("Failed to load income data");
-    } finally {
-      setLoading(false);
+    // console.log("Income API response:", response.data);
+
+    if (response?.data?.data) {
+      setIncomeData(response.data.data); 
+    } else {
+      setIncomeData([]);
     }
-  };
+  } catch (error) {
+    console.log("Something went wrong. Please try again.", error);
+    toast.error("Failed to load income data");
+  } finally {
+    setLoading(false);
+  }
+};
 
-  // Handle add income
-  const handleAddIncome = async (income) => {
-    const { source, amount, date, icon } = income;
+  // // Handle add income
+  // const handleAddIncome = async (income) => {
+  //   const { source, amount, date, icon } = income;
 
-    if (!source.trim()) {
-      toast.error("Source is required.");
-      return;
-    }
+  //   if (!source.trim()) {
+  //     toast.error("Source is required.");
+  //     return;
+  //   }
 
-    if (!amount || isNaN(amount) || Number(amount) <= 0) {
-      toast.error("Amount should be a valid number greater than 0.");
-      return;
-    }
+  //   if (!amount || isNaN(amount) || Number(amount) <= 0) {
+  //     toast.error("Amount should be a valid number greater than 0.");
+  //     return;
+  //   }
 
-    if (!date) {
-      toast.error("Date is required.");
-      return;
-    }
+  //   if (!date) {
+  //     toast.error("Date is required.");
+  //     return;
+  //   }
 
-    try {
-      await axiosInstance.post(API_PATHS.INCOME.ADD_INCOME, {
-        source,
-        amount,
-        date,
-        icon,
-      });
+  //   try {
+  //     await axiosInstance.post(API_PATHS.INCOME.ADD_INCOME, {
+  //       source,
+  //       amount,
+  //       date,
+  //       icon,
+  //     });
 
-      setOpenAddIncomeModal(false);
-      toast.success("Income added successfully");
-      fetchIncomeDetails();
-    } catch (error) {
-      console.log("Error adding income: ", error.response?.data?.message || error.message);
-    }
-  };
+  //     setOpenAddIncomeModal(false);
+  //     toast.success("Income added successfully");
+  //     fetchIncomeDetails();
+  //   } catch (error) {
+  //     console.log("Error adding income: ", error.response?.data?.message || error.message);
+  //   }
+  // };
 
   // delete income (still needs logic)
   const deleteIncome = async (id) => {
@@ -236,24 +237,24 @@ const Income = () => {
             />
           </div>
 
-          <IncomeList
+          {/* <IncomeList
             transactions={incomeData}
             onDelete={(id) => {
               setOpenDeleteAlert({ show: true, data: id });
             }}
             onDownload={handleDownloadIncomeDetails}
-          />
+          /> */}
         </div>
-
+{/* 
         <Modal
           isOpen={openAddIncomeModal}
           onClose={() => setOpenAddIncomeModal(false)}
           title="Add Income"
         >
           <AddIncomeForm onAddIncome={handleAddIncome} />
-        </Modal>
+        </Modal> */}
         
-        <Modal
+        {/* <Modal
         isOpen ={openDeleteAlert.show}
         onClose = {()=> setOpenDeleteAlert({show:false, data:null})}
         title="Delete Income "
@@ -262,7 +263,7 @@ const Income = () => {
           content="Are you sure you want to delete this income detail?"
           onDelete={()=> deleteIncome(openDeleteAlert.data)}
           />
-          </Modal>
+          </Modal> */}
       </div>
     </DashboardLayout>
   );

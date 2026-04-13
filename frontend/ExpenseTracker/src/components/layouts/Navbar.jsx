@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { HiOutlineMenu, HiOutlineX } from 'react-icons/hi';
+import { HiOutlineMenuAlt1 , HiOutlineX } from 'react-icons/hi';
 import SideMenu from './SideMenu';
 
 const Navbar = ({ activeMenu }) => {
@@ -13,17 +13,17 @@ const Navbar = ({ activeMenu }) => {
         }}
       >
         {openSideMenu ? (
-          <HiOutlineX className="text-2xl" />
+          <HiOutlineX className="text-2xl cursor-pointer transition-all duration-900" />
         ) : (
-          <HiOutlineMenu className="text-2xl" />
+          <HiOutlineMenuAlt1  className="text-2xl cursor-pointer transition-all duration-900" />
         )}
       </button>
 
       <h2 className="text-lg font-medium text-black">Expense Tracker</h2>
 
       {openSideMenu && (
-        <div className="fixed top-[61px] -ml-4 bg-white ">
-          <SideMenu activeMenu={activeMenu} />
+        <div className="fixed top-[61px] -ml-4 bg-white w-full h-screen z-50">
+          <SideMenu activeMenu={activeMenu} className="cursor-pointer"/>
         </div>
       )}
     </div>
