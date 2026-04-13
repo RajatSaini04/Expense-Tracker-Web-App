@@ -9,6 +9,7 @@ const DeleteAlert = ({ content, onDelete }) => {
           type="button"
           className="add-btn add-btn-fill"
           onClick={onDelete}
+          autoFocus
         >
           Delete
         </button>

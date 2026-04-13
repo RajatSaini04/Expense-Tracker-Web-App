@@ -10,10 +10,10 @@ import { IoMdCard } from "react-icons/io";
 import { addThousandsSeparator } from "../../utils/helper.js";
 import RecentTransactions from "../../components/Dashboard/RecentTransactions.jsx"
 import FinanceOverview from '../../components/Dashboard/FinanceOverview';
-import ExpenseTransactons from "../../components/Dashboard/ExpenseTransactons.jsx"
 import Last30DaysExpenses from "../../components/Dashboard/Last30DaysExpenses.jsx"
 import RecentIncomeWithChart from "../../components/Dashboard/RecentIncomeWithChart.jsx";
 import RecentIncome from "../../components/Dashboard/RecentIncome.jsx";
+import ExpenseTransactions from "../../components/Dashboard/ExpenseTransactions.jsx";
 
 
 const Home = () => {
@@ -70,6 +70,8 @@ const Home = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+
+          {/* Row 1 */}
           <RecentTransactions
             transactions={dashboardData?.recentTransactions}
             onSeeMore={() => navigate("/expense")}
@@ -81,15 +83,17 @@ const Home = () => {
             totalExpense={dashboardData?.totalExpense || 0}
           />
 
-          <ExpenseTransactons
+          {/* Row 2 */}
+          <ExpenseTransactions
             transactions={dashboardData?.last30DaysExpenses?.transactions || []}
             onSeeMore={() => navigate("/expense")}
           />
+
           <Last30DaysExpenses
             data={dashboardData?.last30DaysExpenses?.transactions || []}
-
           />
 
+          {/* Row 3 */}
           <RecentIncomeWithChart
             data={dashboardData?.last60DaysIncome?.transactions.slice(0, 4) || []}
             totalIncome={dashboardData?.totalIncome || 0}
@@ -100,9 +104,10 @@ const Home = () => {
             onSeeMore={() => navigate("/income")}
           />
 
-
-
         </div>
+
+
+
       </div>
     </DashboardLayout>
   );

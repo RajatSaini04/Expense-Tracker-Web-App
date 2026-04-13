@@ -19,7 +19,7 @@ const IncomeList = ({ transactions, onDelete, onDownload }) => {
             key={income._id}
             title={income.source}
             icon={income.icon}
-            date={moment(income.date).format("Do MMM YYYY")}
+            date={moment(income.date).format("DD MMM YYYY")}
             amount={income.amount}
             type="income"
             onDelete={() => onDelete(income._id)}

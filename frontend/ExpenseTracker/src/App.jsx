@@ -7,11 +7,11 @@ import{
   Navigate
   } from 'react-router-dom';
 
-  import Login from './pages/Auth/Login';
+import Login from './pages/Auth/Login';
 import Signup from './pages/Auth/Signup';
-import Home from './pages/dashboard/Home';
-import Income from './pages/dashboard/Income';
-import Expense from './pages/dashboard/Expense';
+import Home from './pages/Dashboard/Home';
+import Income from './pages/Dashboard/Income';
+import Expense from './pages/Dashboard/Expense';
 import UserProvider from './context/UserContext';
 import { Toaster } from "react-hot-toast";
 

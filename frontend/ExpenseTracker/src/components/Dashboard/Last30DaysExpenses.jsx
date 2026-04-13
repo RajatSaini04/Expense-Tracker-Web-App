@@ -23,19 +23,6 @@ const Last30DaysExpenses = ({ data }) => {
       </div>
       <CustomBarChart data={chartData}/>
 
-      <div className='mt-6'>
-        {data?.slice(0, 5)?.map((expense) => (
-          <TransactionInfoCard
-            key={expense._id}
-            title={expense.category}
-            icon={expense.icon}
-            date={moment(expense.date).format("Do MMM YYYY")}
-            amount={expense.amount}
-            type="expense"
-            hideDeleteBtn
-          />
-        ))}
-      </div>
     </div>
   );
 };
