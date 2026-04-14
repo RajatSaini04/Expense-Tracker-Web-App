@@ -4,13 +4,13 @@ import { FaRegEye, FaRegEyeSlash } from 'react-icons/fa6'
 
 
 
-const Input = ({ label, type, placeholder, value, onChange }) => {
+const Input = ({ label, type, placeholder, value, onChange, className }) => {
   const [showPassword, setShowPassword] = useState(false);
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);
   }
   return (
-    <div>
+    <div className={`w-full ${className || ""}`}>
       <label className="text-[13px] text-slate-800 ">{label}</label>
 
       <div className='input-box'>

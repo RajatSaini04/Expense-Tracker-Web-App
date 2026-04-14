@@ -7,7 +7,7 @@ import Navbar from './Navbar';
 const DashboardLayout = ({ children, activeMenu }) => {
   const { user } = useContext(UserContext);
   return (
-    <div className="flex  flex-col gap-5 bg-white border border-b border-gray-200/50 backdrop-blur-[2px] py-4 px-7 sticky top-0 z-30">
+    <div className="flex  flex-col gap-5 bg-white border border-b border-gray-200/50 backdrop-blur-[2px] py-4 px-7">
       <Navbar activeMenu={activeMenu} />
 
       {user && (

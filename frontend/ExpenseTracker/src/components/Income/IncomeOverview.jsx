@@ -5,8 +5,6 @@ import CustomBarChart from "../Charts/CustomBarChart";
 
 const IncomeOverview = ({ transactions, onAddIncome }) => {
   const [chartData, setChartData] = useState([]);
-  console.log("transactions:", transactions);
-  console.log("chartData:", chartData);
   useEffect(() => {
     const result = prepareIncomeBarChartData(transactions);
     setChartData(result);

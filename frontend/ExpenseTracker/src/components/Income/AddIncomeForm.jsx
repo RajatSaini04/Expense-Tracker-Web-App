@@ -17,10 +17,7 @@ const AddIncomeForm = ({ onAddIncome }) => {
   return (
     <div>
 
-      <EmojiPickerPopup
-        icon={income.icon}
-        onSelect={(selectedIcon) => handleChange("icon", selectedIcon)}
-      />
+
 
       <Input
         value={income.source}
@@ -38,13 +35,21 @@ const AddIncomeForm = ({ onAddIncome }) => {
         type="number"
       />
 
-      <Input
-        value={income.date}
-        onChange={({ target }) => handleChange("date", target.value)}
-        label="Date"
-        placeholder=""
-        type="date"
-      />
+      <div className='flex justify-between items-center gap-5'>
+        <Input
+          className="flex-1"
+          value={income.date}
+          onChange={({ target }) => handleChange("date", target.value)}
+          label="Date"
+          placeholder=""
+          type="date"
+        />
+        <EmojiPickerPopup
+          icon={income.icon}
+          onSelect={(selectedIcon) => handleChange("icon", selectedIcon)}
+        />
+      </div>
+
 
       <div className="flex justify-end mt-6">
         <button
