@@ -66,7 +66,7 @@ const Modal = ({ children, isOpen, onClose, title }) => {
             </button>
           </div>
 
-          {/* Modal body */}
+          {/* Modal body - Addincome form and Addexpense form */}
           <div className="p-4 md:p-5 space-y-4">
             {children}
           </div>
