@@ -14,15 +14,12 @@ const Login = () => {
   const [error, setError] = useState(null);
   const { updateUser } = useContext(UserContext);
 
-
   const navigate = useNavigate();
 
-  //handle login form submit 
   const handleLogin = async (e) => {
     e.preventDefault();
 
     if (!validateEmail(email)) {
-      console.log("Invalid email")
       setError('Please enter a valid email address');
       return;
     }
@@ -32,9 +29,6 @@ const Login = () => {
     }
     setError("");
 
-
-
-    // Login API Call
     try {
       const response = await axiosInstance.post(API_PATHS.AUTH.LOGIN, {
         email,
@@ -62,14 +56,13 @@ const Login = () => {
   return (
     <AuthLayout>
       <div className="lg:w-[70%] h-3/4 md:h-full flex flex-col justify-center">
-        <h3 className="text-xl font-semibold text-black">Welcome Back</h3>
-        <p className="text-xs text-slate-700 mt-[5px] mb-6">
+        <h3 className="text-xl font-semibold text-black dark:text-white">Welcome Back</h3>
+        <p className="text-xs text-slate-700 dark:text-slate-400 mt-[5px] mb-6">
           Please enter your details to log in
         </p>
 
         <form onSubmit={handleLogin}>
           <Input
-
             value={email}
             onChange={({ target }) => setEmail(target.value)}
             label="Email Address"
@@ -78,10 +71,9 @@ const Login = () => {
           />
 
           <Input
-
             value={password}
             onChange={({ target }) => setPassword(target.value)}
-            label=" Password"
+            label="Password"
             placeholder="Min 8 characters"
             type="password"
           />
@@ -90,18 +82,16 @@ const Login = () => {
           <button type="submit" className="btn-primary">
             LOGIN
           </button>
-          <p className='text-[13px] text-slate-800 mt-3'>
+          <p className='text-[13px] text-slate-800 dark:text-slate-400 mt-3'>
             Don't have an account?{" "}
             <Link className="font-medium text-primary underline" to="/Signup">
               SignUp
             </Link>
-
           </p>
         </form>
       </div>
     </AuthLayout>
   );
-
 };
 
 export default Login;

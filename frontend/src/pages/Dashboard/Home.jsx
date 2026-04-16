@@ -15,7 +15,6 @@ import RecentIncomeWithChart from "../../components/Dashboard/RecentIncomeWithCh
 import RecentIncome from "../../components/Dashboard/RecentIncome.jsx";
 import ExpenseTransactions from "../../components/Dashboard/ExpenseTransactions.jsx";
 
-
 const Home = () => {
   useUserAuth();
   const navigate = useNavigate();
@@ -44,7 +43,6 @@ const Home = () => {
     return () => { }
   }, [])
 
-
   return (
     <DashboardLayout activeMenu="Dashboard">
       <div className="my-5 mx-auto">
@@ -70,8 +68,6 @@ const Home = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-
-          {/* Row 1 */}
           <RecentTransactions
             transactions={dashboardData?.recentTransactions}
             onSeeMore={() => navigate("/expense")}
@@ -83,7 +79,6 @@ const Home = () => {
             totalExpense={dashboardData?.totalExpense || 0}
           />
 
-          {/* Row 2 */}
           <ExpenseTransactions
             transactions={dashboardData?.last30DaysExpenses?.transactions || []}
             onSeeMore={() => navigate("/expense")}
@@ -93,7 +88,6 @@ const Home = () => {
             data={dashboardData?.last30DaysExpenses?.transactions || []}
           />
 
-          {/* Row 3 */}
           <RecentIncomeWithChart
             data={dashboardData?.last60DaysIncome?.transactions.slice(0, 4) || []}
             totalIncome={dashboardData?.totalIncome || 0}
@@ -103,11 +97,7 @@ const Home = () => {
             transactions={dashboardData?.last60DaysIncome?.transactions || []}
             onSeeMore={() => navigate("/income")}
           />
-
         </div>
-
-
-
       </div>
     </DashboardLayout>
   );

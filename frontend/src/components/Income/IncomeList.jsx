@@ -1,13 +1,13 @@
- import React from 'react';
+import React from 'react';
 import { LuDownload } from 'react-icons/lu';
 import TransactionInfoCard from '../Cards/TransactionInfoCard';
 import moment from 'moment';
 
-const IncomeList = ({ transactions, onDelete, onDownload }) => {
+const IncomeList = ({ transactions, onDelete, onDownload, onEdit }) => {
   return (
     <div className="card">
       <div className="flex items-center justify-between">
-        <h5 className="text-lg">Income Sources</h5>
+        <h5 className="text-lg dark:text-white">Income Sources</h5>
         <button className="card-btn" onClick={onDownload}>
           <LuDownload className="text-base" /> Download
         </button>
@@ -23,9 +23,10 @@ const IncomeList = ({ transactions, onDelete, onDownload }) => {
             amount={income.amount}
             type="income"
             onDelete={() => onDelete(income._id)}
+            onEdit={() => onEdit(income)}
           />
         ))}
-      </div> 
+      </div>
     </div>
   );
 };

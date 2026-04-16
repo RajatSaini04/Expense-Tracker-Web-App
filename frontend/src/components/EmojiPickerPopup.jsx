@@ -6,7 +6,6 @@ const EmojiPickerPopup = ({ icon, onSelect }) => {
   const [isOpen, setIsOpen] = useState(false);
   const pickerRef = useRef(null);
 
-  // 🔥 Close when clicking outside picker
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (pickerRef.current && !pickerRef.current.contains(e.target)) {
@@ -25,30 +24,29 @@ const EmojiPickerPopup = ({ icon, onSelect }) => {
 
   return (
     <div className="relative flex flex-col md:flex-row items-start gap-5 mt-[20px]">
-
       {/* Trigger */}
       <div
         className="flex items-center gap-4 cursor-pointer"
         onClick={() => setIsOpen((prev) => !prev)}
       >
-        <div className="w-12 h-12 flex items-center justify-center text-2xl bg-purple-50 text-primary rounded-lg">
+        <div className="w-12 h-12 flex items-center justify-center text-2xl bg-purple-50 dark:bg-purple-900/30 text-primary rounded-lg">
           {icon ? (
             <img src={icon} alt="Icon" className="w-12 h-12 rounded-lg" />
           ) : (
             <LuImage />
           )}
         </div>
-        <p>{icon ? "Change Icon" : "Pick Icon"}</p>
+        <p className="dark:text-gray-300">{icon ? "Change Icon" : "Pick Icon"}</p>
       </div>
 
-      {/* 🔥 Floating Picker */}
+      {/* Floating Picker */}
       {isOpen && (
         <div
-          ref={pickerRef} // 🔥 important
-          className="absolute bottom-14 right-10 z-[999] bg-white shadow-lg rounded-lg border border-gray-200 w-[300px] sm:w-[320px] max-w-[90vw]"
+          ref={pickerRef}
+          className="absolute bottom-14 right-10 z-[999] bg-white dark:bg-slate-800 shadow-lg rounded-lg border border-gray-200 dark:border-slate-600 w-[300px] sm:w-[320px] max-w-[90vw]"
         >
           <button
-            className="w-7 h-7 flex items-center justify-center bg-white border border-gray-200 rounded-full absolute -top-2 -right-2 z-10 cursor-pointer"
+            className="w-7 h-7 flex items-center justify-center bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-full absolute -top-2 -right-2 z-10 cursor-pointer"
             onClick={() => setIsOpen(false)}
           >
             <LuX />

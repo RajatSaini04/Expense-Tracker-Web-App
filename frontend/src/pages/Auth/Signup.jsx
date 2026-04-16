@@ -6,10 +6,9 @@ import { validateEmail } from "../../utils/helper";
 import axiosInstance from '../../utils/axiosInstance.js';
 import { API_PATHS } from '../../utils/apiPaths.js';
 import ProfilePhotoSelector from "../../components/Inputs/ProfilePhotoSelector";
-import { useContext } from 'react'; // 👈 Add this if not already imported
-import { UserContext } from '../../context/UserContext.jsx'; // ✅ Correct import
+import { useContext } from 'react';
+import { UserContext } from '../../context/UserContext.jsx';
 import uploadImage from "../../utils/uploadImage";
-
 
 const SignUp = () => {
   const [profilePic, setProfilePic] = useState(null);
@@ -20,7 +19,6 @@ const SignUp = () => {
   const { updateUser } = useContext(UserContext);
   const navigate = useNavigate();
 
-  // Handle Sign Up Form Submit
   const handleSignUp = async (e) => {
     e.preventDefault();
 
@@ -41,10 +39,7 @@ const SignUp = () => {
 
     setError("");
 
-    // Sign Up API Call
     try {
-
-      //upload image if present 
       if (profilePic) {
         try {
           const imgUploadRes = await uploadImage(profilePic);
@@ -55,19 +50,17 @@ const SignUp = () => {
         }
       }
 
-
       const response = await axiosInstance.post(API_PATHS.AUTH.REGISTER, {
         fullname,
         email,
         password,
         profileImageUrl,
-
       });
       const { token, user } = response.data;
 
       if (token) {
         localStorage.setItem("token", token);
-        updateUser(user); // Assuming you have a function to update user context
+        updateUser(user);
         navigate("/dashboard");
       }
     } catch (error) {
@@ -77,14 +70,13 @@ const SignUp = () => {
         setError("Something went wrong. Please try again.");
       }
     }
-
   };
 
   return (
     <AuthLayout>
       <div className='lg:w-[100%] h-auto md:h-full mt-10 md:mt-0 flex flex-col justify-center'>
-        <h3 className='text-xl font-semibold text-black'>Create an Account</h3>
-        <p className='text-xs text-slate-700 mt-[5px] mb-6'>
+        <h3 className='text-xl font-semibold text-black dark:text-white'>Create an Account</h3>
+        <p className='text-xs text-slate-700 dark:text-slate-400 mt-[5px] mb-6'>
           Join us today by entering your details below
         </p>
         <form onSubmit={handleSignUp}>
@@ -95,7 +87,7 @@ const SignUp = () => {
               value={fullname}
               onChange={({ target }) => setfullname(target.value)}
               label="Full Name"
-              placeholder="abcd"
+              placeholder="John Doe"
             />
             <Input
               type="text"
@@ -118,7 +110,7 @@ const SignUp = () => {
           <button type="submit" className="btn-primary">
             Create Account
           </button>
-          <p className='text-[13px] text-slate-800 mt-3'>
+          <p className='text-[13px] text-slate-800 dark:text-slate-400 mt-3'>
             Already have an account?{" "}
             <Link className="font-medium text-primary underline" to="/login">
               Login

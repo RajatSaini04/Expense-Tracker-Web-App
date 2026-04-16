@@ -1,72 +1,77 @@
 
-import React,{useRef, useState} from 'react'
-import {LuUser,LuUpload,LuTrash} from 'react-icons/lu'
+import React, { useRef, useState } from 'react'
+import { LuUser, LuUpload, LuTrash } from 'react-icons/lu'
 
-const ProfilePhotoSelector = ({image,setImage}) => {
-    const inputRef = useRef(null);
-    const[previewUrl,setPreviewUrl] = useState(null);
+const ProfilePhotoSelector = ({ image, setImage, existingImageUrl }) => {
+  const inputRef = useRef(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
 
-    const handleImageChange = (event) => {
-          const file = event.target.files[0];
-          if(file) {
-            //update the image state 
-            setImage(file);
+  const handleImageChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      setImage(file);
+      const preview = URL.createObjectURL(file);
+      setPreviewUrl(preview);
+    }
+  };
 
-            //generate preview URL fron the file 
+  const handleRemoveImage = () => {
+    setImage(null);
+    setPreviewUrl(null);
+  };
 
-            const preview = URL.createObjectURL(file);
-            setPreviewUrl(preview);
-          }
-        };
+  const onChooseFile = () => {
+    inputRef.current.click();
+  };
 
-        const handleRemoveImage = ()=>{
-            setImage(null);
-            setPreviewUrl(null);
-        };
+  const displayUrl = previewUrl || (image ? null : existingImageUrl);
 
-        const onChooseFile=()=>{
-            inputRef.current.click();
-        };
-            
- 
-    
   return (
     <div className='flex justify-center mb-6'>
-        <input type="file" 
+      <input type="file"
         accept='image/*'
         ref={inputRef}
         onChange={handleImageChange}
         className='hidden'
-        />
+      />
 
-        {!image? (
-            <div className='w-20 h-20 flex items-center justify-center bg-purple-100 rounded-full relative'>
-            
-                <LuUser 
-                className='text-4xl text-primary'
-                /> 
-                <button 
-                type='button'
-               className='w-8 h-8 flex items-center justify-center bg-primary text-white  rounded-full absolute -bottom-1 -right-1 border-2 border-primary'
-             onClick={onChooseFile}
-             >
-                <LuUpload/>
-                </button>
-                </div>):(
-                <div className='relative'><img 
-                src={ previewUrl}
-                 alt="Profile photo" 
-                 className='w-20 h-20 rounded-full object-cover'
-                 />
-                 <button
-                 type='button'
-                 className='w-8 h-8 flex items-center justify-center bg-red-500 text-white  rounded-full absolute -bottom-1 -right-1 '
-                 onClick={handleRemoveImage}
-                 ><LuTrash/>
-                 </button>
-                 </div>
-            )}
-      
+      {!image && !displayUrl ? (
+        <div className='w-20 h-20 flex items-center justify-center bg-purple-100 dark:bg-purple-900/30 rounded-full relative'>
+          <LuUser className='text-4xl text-primary' />
+          <button
+            type='button'
+            className='w-8 h-8 flex items-center justify-center bg-primary text-white rounded-full absolute -bottom-1 -right-1 border-2 border-primary hover:scale-110 transition-transform cursor-pointer'
+            onClick={onChooseFile}
+          >
+            <LuUpload />
+          </button>
+        </div>
+      ) : (
+        <div className='relative'>
+          <img
+            src={previewUrl || displayUrl}
+            alt="Profile photo"
+            className='w-20 h-20 rounded-full object-cover'
+          />
+          {image ? (
+            <button
+              type='button'
+              className='w-8 h-8 flex items-center justify-center bg-red-500 text-white rounded-full absolute -bottom-1 -right-1 hover:scale-110 transition-transform cursor-pointer'
+              onClick={handleRemoveImage}
+            >
+              <LuTrash />
+            </button>
+          ) : (
+            <button
+              type='button'
+              className='w-8 h-8 flex items-center justify-center bg-primary text-white rounded-full absolute -bottom-1 -right-1 border-2 border-primary hover:scale-110 transition-transform cursor-pointer'
+              onClick={onChooseFile}
+            >
+              <LuUpload />
+            </button>
+          )}
+        </div>
+      )}
     </div>
   )
 }

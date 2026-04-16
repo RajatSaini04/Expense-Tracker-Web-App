@@ -1,16 +1,13 @@
 const Income = require('../models/Income');
-const xlsx = require('xlsx'); // Import the xlsx library for Excel file handling
-const path = require('path'); // Import the path module for file handling
+const xlsx = require('xlsx');
+const path = require('path');
 
-
-
-//ADD INCOME SOURCE 
+// ADD INCOME SOURCE
 exports.addIncome = async (req, res) => {
-    const userId = req.user._id; // Get user ID from the request
+    const userId = req.user._id;
 
     try {
-        const { icon, source, amount, date } = req.body; // Destructure the request body
-        //validation: check for missing fields
+        const { icon, source, amount, date } = req.body;
         if (!source || !amount || !date) {
             return res.status(400).json({
                 success: false,
@@ -18,92 +15,129 @@ exports.addIncome = async (req, res) => {
             });
         }
 
-        // Create a new income source
         const newIncome = await Income.create({
             userId,
             icon,
             source,
             amount,
-            date: new Date(date), // Convert date to a Date object
-
+            date: new Date(date),
         });
 
-        await newIncome.save(); // Save the new income source to the database
+        await newIncome.save();
         res.status(201).json({
             success: true,
             message: 'Income source added successfully',
-            data: newIncome, // Return the created income source 
-        })
+            data: newIncome,
+        });
     } catch (error) {
-        console.error(error); // Log the error for debugging
+        console.error(error);
         res.status(500).json({
             success: false,
             message: 'Error adding income source',
-            error: error.message, // Return the error message
+            error: error.message,
         });
     }
-}
+};
 
-// GET ALL INCOME SOURCE
+// GET ALL INCOME SOURCE (excludes soft-deleted)
 exports.getAllIncome = async (req, res) => {
-    const userId = req.user._id; // Get user ID from the request
+    const userId = req.user._id;
 
     try {
-        const income = await Income.find({ userId }).sort({ date: -1 }); // Fetch all income sources for the user, sorted by date
+        const income = await Income.find({ userId, isDeleted: { $ne: true } }).sort({ date: -1 });
         res.status(200).json({
             success: true,
-            data: income, // Return the fetched income sources
+            data: income,
         });
     } catch (error) {
-        console.error(error); // Log the error for debugging
+        console.error(error);
         res.status(500).json({
             success: false,
             message: 'Error fetching income sources',
-            error: error.message, // Return the error message
+            error: error.message,
         });
     }
+};
 
-}
+// UPDATE INCOME SOURCE
+exports.updateIncome = async (req, res) => {
+    try {
+        const { icon, source, amount, date } = req.body;
 
-// DOWNLOAD INCOME SOURCE EXCEL
+        if (!source || !amount || !date) {
+            return res.status(400).json({
+                success: false,
+                message: 'Please provide all required fields',
+            });
+        }
+
+        const updatedIncome = await Income.findOneAndUpdate(
+            { _id: req.params.id, userId: req.user._id },
+            { icon, source, amount: Number(amount), date: new Date(date) },
+            { new: true }
+        );
+
+        if (!updatedIncome) {
+            return res.status(404).json({
+                success: false,
+                message: 'Income source not found',
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: 'Income source updated successfully',
+            data: updatedIncome,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            success: false,
+            message: 'Error updating income source',
+            error: error.message,
+        });
+    }
+};
+
+// DOWNLOAD INCOME SOURCE EXCEL (excludes soft-deleted)
 exports.downloadIncomeExcel = async (req, res) => {
-    const userId = req.user._id; // Get user ID from the request
+    const userId = req.user._id;
 
     try {
-        const income = await Income.find({ userId }).sort({ date: -1 });
-
-        //prepare data for Excel 
+        const income = await Income.find({ userId, isDeleted: { $ne: true } }).sort({ date: -1 });
 
         const data = income.map((item) => ({
             Source: item.source,
             Amount: item.amount,
-            Date: item.date.toLocaleDateString(), // Format date as a string
+            Date: item.date.toLocaleDateString(),
         }));
-        // Fetch all income sources for the user
-        const wb = xlsx.utils.book_new();// Create a new workbook
-        const ws = xlsx.utils.json_to_sheet(data); // Add a new worksheet
-        xlsx.utils.book_append_sheet(wb, ws, 'Income'); // Append the worksheet to the workbook
-        const filePath = path.join(__dirname, '../downloads/income_details.xlsx'); // store in separate folder
+
+        const wb = xlsx.utils.book_new();
+        const ws = xlsx.utils.json_to_sheet(data);
+        xlsx.utils.book_append_sheet(wb, ws, 'Income');
+        const filePath = path.join(__dirname, '../downloads/income_details.xlsx');
         xlsx.writeFile(wb, filePath);
         res.download(filePath);
     } catch (error) {
-        console.error(error); // Log the error for debugging
-
+        console.error(error);
         res.status(500).json({
             success: false,
             message: 'Error downloading income sources',
-            error: error.message, // Return the error message
+            error: error.message,
         });
     }
-}
+};
 
-// DELETE INCOME SOURCE
+// SOFT DELETE INCOME SOURCE
 exports.deleteIncome = async (req, res) => {
-
     try {
-        const deletedIncome = await Income.findOneAndDelete({ _id: req.params.id });
+        const income = await Income.findOneAndUpdate(
+            { _id: req.params.id, userId: req.user._id },
+            { isDeleted: true, deletedAt: new Date() },
+            { new: true }
+        );
 
-        if (!deletedIncome) {
+        if (!income) {
             return res.status(404).json({
                 success: false,
                 message: 'Income source not found',
@@ -111,14 +145,95 @@ exports.deleteIncome = async (req, res) => {
         }
         res.status(200).json({
             success: true,
-            message: 'Income source deleted successfully',
+            message: 'Income source moved to Archived Transactions',
         });
     } catch (error) {
-        console.error(error); // Log the error for debugging
+        console.error(error);
         res.status(500).json({
             success: false,
             message: 'Error deleting income source',
-            error: error.message, // Return the error message
+            error: error.message,
         });
     }
-}
+};
+
+// GET DELETED INCOME SOURCES (Archived Transactions)
+exports.getDeletedIncome = async (req, res) => {
+    const userId = req.user._id;
+
+    try {
+        const income = await Income.find({ userId, isDeleted: true }).sort({ deletedAt: -1 });
+        res.status(200).json({
+            success: true,
+            data: income,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            success: false,
+            message: 'Error fetching deleted income sources',
+            error: error.message,
+        });
+    }
+};
+
+// RESTORE INCOME SOURCE
+exports.restoreIncome = async (req, res) => {
+    try {
+        const income = await Income.findOneAndUpdate(
+            { _id: req.params.id, userId: req.user._id, isDeleted: true },
+            { isDeleted: false, deletedAt: null },
+            { new: true }
+        );
+
+        if (!income) {
+            return res.status(404).json({
+                success: false,
+                message: 'Deleted income source not found',
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: 'Income source restored successfully',
+            data: income,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            success: false,
+            message: 'Error restoring income source',
+            error: error.message,
+        });
+    }
+};
+
+// PERMANENT DELETE INCOME SOURCE
+exports.permanentDeleteIncome = async (req, res) => {
+    try {
+        const income = await Income.findOneAndDelete({
+            _id: req.params.id,
+            userId: req.user._id,
+            isDeleted: true,
+        });
+
+        if (!income) {
+            return res.status(404).json({
+                success: false,
+                message: 'Deleted income source not found',
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: 'Income source permanently deleted',
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            success: false,
+            message: 'Error permanently deleting income source',
+            error: error.message,
+        });
+    }
+};

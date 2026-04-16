@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
+const bcryptjs = require('bcryptjs');
 
 // Generate JWT token
 const generateToken = (id) => {
@@ -12,8 +13,7 @@ const generateToken = (id) => {
 exports.registerUser = async (req, res) => {
     try {
         const { fullname, email, password, profileImageUrl } = req.body || {};
-        console.log(req.body);
-        //   Validate input
+
         if (!fullname || !email || !password) {
             return res.status(400).json({
                 success: false,
@@ -21,7 +21,6 @@ exports.registerUser = async (req, res) => {
             });
         }
 
-        // Check if user already exists
         const existingUser = await User.findOne({ email });
         if (existingUser) {
             return res.status(400).json({
@@ -30,7 +29,6 @@ exports.registerUser = async (req, res) => {
             });
         }
 
-        // Create new user
         const user = await User.create({
             fullname,
             email,
@@ -38,13 +36,11 @@ exports.registerUser = async (req, res) => {
             profileImageUrl,
         });
 
-        // Send response
         res.status(201).json({
             id: user._id,
             user,
             token: generateToken(user._id),
         });
-
     } catch (error) {
         res.status(500).json({
             success: false,
@@ -64,8 +60,7 @@ exports.loginUser = async (req, res) => {
         });
     }
     try {
-        const user = await User
-            .findOne({ email });
+        const user = await User.findOne({ email });
         if (!user || !(await user.comparePassword(password))) {
             return res.status(401).json({
                 success: false,
@@ -73,13 +68,11 @@ exports.loginUser = async (req, res) => {
             });
         }
         res.status(200).json({
-
             id: user._id,
             user,
             token: generateToken(user._id),
         });
-    }
-    catch (error) {
+    } catch (error) {
         res.status(500).json({
             success: false,
             message: 'Error logging in user',
@@ -88,7 +81,7 @@ exports.loginUser = async (req, res) => {
     }
 };
 
-// Get USer Info
+// Get User Info
 exports.getUserInfo = async (req, res) => {
     try {
         const user = await User.findById(req.user.id).select('-password');
@@ -106,6 +99,93 @@ exports.getUserInfo = async (req, res) => {
         res.status(500).json({
             success: false,
             message: 'Error fetching user info',
+            error: error.message,
+        });
+    }
+};
+
+// Update Profile (fullname, profileImageUrl)
+exports.updateProfile = async (req, res) => {
+    try {
+        const { fullname, profileImageUrl } = req.body;
+
+        const updateData = {};
+        if (fullname) updateData.fullname = fullname;
+        if (profileImageUrl !== undefined) updateData.profileImageUrl = profileImageUrl;
+
+        const user = await User.findByIdAndUpdate(
+            req.user.id,
+            updateData,
+            { new: true }
+        ).select('-password');
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'User not found',
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: 'Profile updated successfully',
+            user,
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Error updating profile',
+            error: error.message,
+        });
+    }
+};
+
+// Change Password
+exports.changePassword = async (req, res) => {
+    try {
+        const { currentPassword, newPassword } = req.body;
+
+        if (!currentPassword || !newPassword) {
+            return res.status(400).json({
+                success: false,
+                message: 'Please provide current and new password',
+            });
+        }
+
+        if (newPassword.length < 8) {
+            return res.status(400).json({
+                success: false,
+                message: 'New password must be at least 8 characters',
+            });
+        }
+
+        const user = await User.findById(req.user.id);
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'User not found',
+            });
+        }
+
+        const isMatch = await user.comparePassword(currentPassword);
+        if (!isMatch) {
+            return res.status(401).json({
+                success: false,
+                message: 'Current password is incorrect',
+            });
+        }
+
+        user.password = newPassword;
+        await user.save();
+
+        res.status(200).json({
+            success: true,
+            message: 'Password changed successfully',
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Error changing password',
             error: error.message,
         });
     }

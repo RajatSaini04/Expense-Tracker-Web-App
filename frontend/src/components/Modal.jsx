@@ -1,16 +1,15 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 
 const Modal = ({ children, isOpen, onClose, title }) => {
 
-  // 🔥 prevent background scroll
+  // prevent background scroll
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "auto";
     }
-
     return () => {
       document.body.style.overflow = "auto";
     };
@@ -21,7 +20,6 @@ const Modal = ({ children, isOpen, onClose, title }) => {
     const handleEsc = (e) => {
       if (e.key === "Escape") onClose();
     };
-
     document.addEventListener("keydown", handleEsc);
     return () => document.removeEventListener("keydown", handleEsc);
   }, [onClose]);
@@ -30,23 +28,24 @@ const Modal = ({ children, isOpen, onClose, title }) => {
 
   return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-[2px]"
-      onClick={onClose} // 🔥 click outside to close
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/60 backdrop-blur-[2px] transition-opacity duration-300"
+      onClick={onClose}
     >
       <div
-        className="relative p-4 w-full max-w-2xl max-h-full text-black"
-        onClick={(e) => e.stopPropagation()} // 🔥 prevent close inside
+        className="relative p-4 w-full max-w-2xl max-h-full text-black dark:text-gray-100 animate-in"
+        onClick={(e) => e.stopPropagation()}
+        style={{ animation: "modalSlideIn 0.25s ease-out" }}
       >
         {/* Modal content */}
-        <div className="relative bg-white rounded-lg shadow-sm">
+        <div className="relative bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-gray-200/50 dark:border-slate-700">
           {/* Modal header */}
-          <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t border-gray-200">
-            <h3 className="text-lg font-medium text-gray-900">
+          <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t border-gray-200 dark:border-slate-700">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
               {title}
             </h3>
             <button
               type="button"
-              className="text-gray-400 hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 inline-flex justify-center items-center cursor-pointer"
+              className="text-gray-400 hover:bg-gray-200 dark:hover:bg-slate-700 hover:text-gray-900 dark:hover:text-white rounded-lg text-sm w-8 h-8 inline-flex justify-center items-center cursor-pointer transition-all duration-200"
               onClick={onClose}
             >
               <svg
@@ -66,7 +65,7 @@ const Modal = ({ children, isOpen, onClose, title }) => {
             </button>
           </div>
 
-          {/* Modal body - Addincome form and Addexpense form */}
+          {/* Modal body */}
           <div className="p-4 md:p-5 space-y-4">
             {children}
           </div>

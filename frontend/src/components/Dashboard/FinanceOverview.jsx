@@ -1,7 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import CustomPieChart from '../Charts/CustomPieChart';
-
-
+import DateRangeFilter from '../Charts/DateRangeFilter';
 
 const COLORS = ["#875CF5", "#FA2C37", "#FF6900"];
 
@@ -15,7 +14,7 @@ const FinanceOverview = ({ totalBalance, totalIncome, totalExpense }) => {
   return (
     <div className="card">
       <div className="flex items-center justify-between">
-        <h5 className="text-lg">Financial Overview</h5>
+        <h5 className="text-lg dark:text-white">Financial Overview</h5>
       </div>
 
       <CustomPieChart
@@ -23,9 +22,8 @@ const FinanceOverview = ({ totalBalance, totalIncome, totalExpense }) => {
         label="Total Balance"
         totalAmount={`$${totalBalance}`}
         colors={COLORS}
-        showTextAnchor= {true}
+        showTextAnchor={true}
       />
- 
     </div>
   );
 };
