@@ -9,11 +9,13 @@ const expenseRoutes = require('./routes/expenseRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 
 const app = express();
+app.set('trust proxy', 1);
 
 // Middleware to handle CORS
 app.use(
   cors({
     origin: process.env.CLIENT_URL || '*',
+    credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   })
@@ -22,9 +24,15 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-const PORT = process.env.PORT || 5000;
 
 connectDB();
+
+app.get('/', (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: 'Expensify API is running 🚀',
+  });
+});
 
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/income', incomeRoutes);
@@ -32,6 +40,7 @@ app.use('/api/v1/expense', expenseRoutes);
 app.use('/api/v1/dashboard', dashboardRoutes);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
