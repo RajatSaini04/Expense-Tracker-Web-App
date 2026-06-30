@@ -49,6 +49,7 @@ out/
 # ========================
 backend/uploads/
 uploads/
+downloads
 
 # ========================
 # IDE / EDITOR FILES
