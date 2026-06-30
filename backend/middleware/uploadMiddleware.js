@@ -1,35 +1,48 @@
-const multer = require('multer');
+const multer = require("multer");
+const path = require("path");
+const fs = require("fs");
 
-const path = require('path');
+// Absolute path to uploads folder
+const uploadDir = path.join(__dirname, "../uploads");
 
- // Temporary storage location
+// Create uploads folder if it doesn't exist
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+}
 
-
-// Middleware to handle file upload and rename
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, 'uploads/'); // Temporary storage location
+        cb(null, uploadDir);
     },
+
     filename: (req, file, cb) => {
-  
-        cb(null, `${Date.now()}-${file.originalname}`); // Use UUID as the filename
+        cb(null, `${Date.now()}-${file.originalname}`);
     },
 });
 
-//file filter
+// File filter
 const fileFilter = (req, file, cb) => {
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+    const allowedTypes = [
+        "image/jpeg",
+        "image/png",
+        "image/jpg",
+    ];
+
     if (allowedTypes.includes(file.mimetype)) {
         cb(null, true);
     } else {
-        cb(new Error('Invalid file type. Only JPEG , JPG and PNG are allowed.'), false);
+        cb(
+            new Error(
+                "Invalid file type. Only JPEG, JPG and PNG are allowed."
+            ),
+            false
+        );
     }
 };
 
+const upload = multer({
+    storage,
+    fileFilter,
+});
 
-
-const upload = multer({ storage ,fileFilter}); // Adjust the field name as necessary
-
-module.exports = upload; // Adjust the field name as necessary
-
- 
+module.exports = upload;
