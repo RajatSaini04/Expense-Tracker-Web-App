@@ -104,7 +104,10 @@ exports.downloadExpenseExcel = async (req, res) => {
     const userId = req.user._id;
 
     try {
-        const expense = await Expense.find({ userId, isDeleted: { $ne: true } }).sort({ date: -1 });
+        const expense = await Expense.find({
+            userId,
+            isDeleted: { $ne: true },
+        }).sort({ date: -1 });
 
         const data = expense.map((item) => ({
             Category: item.category,
@@ -114,15 +117,31 @@ exports.downloadExpenseExcel = async (req, res) => {
 
         const wb = xlsx.utils.book_new();
         const ws = xlsx.utils.json_to_sheet(data);
-        xlsx.utils.book_append_sheet(wb, ws, 'Expense');
-        const filePath = path.join(__dirname, '../downloads/expense_details.xlsx');
-        xlsx.writeFile(wb, filePath);
-        res.download(filePath);
+
+        xlsx.utils.book_append_sheet(wb, ws, "Expense");
+
+        const buffer = xlsx.write(wb, {
+            type: "buffer",
+            bookType: "xlsx",
+        });
+
+        res.setHeader(
+            "Content-Disposition",
+            "attachment; filename=expense_details.xlsx"
+        );
+
+        res.setHeader(
+            "Content-Type",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        );
+
+        res.send(buffer);
+
     } catch (error) {
         console.error(error);
         res.status(500).json({
             success: false,
-            message: 'Error downloading expense category',
+            message: "Error downloading expense details",
             error: error.message,
         });
     }
