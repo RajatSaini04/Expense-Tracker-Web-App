@@ -8,24 +8,49 @@ const {
     updateProfile,
     changePassword,
 } = require('../controller/authController');
+
 const upload = require('../middleware/uploadMiddleware');
 
 const router = express.Router();
 
+// Authentication
 router.post('/register', registerUser);
 router.post('/login', loginUser);
+
+// User
 router.get('/getUser', Protect, getUserInfo);
 router.patch('/update-profile', Protect, updateProfile);
 router.patch('/change-password', Protect, changePassword);
-router.post('/upload-image', upload.single('profileImage'), async (req, res) => {
-    if (!req.file) {
-        return res.status(400).json({ message: 'No file uploaded' });
+
+// Upload Profile Image
+router.post(
+    '/upload-image',
+    Protect,
+    upload.single('profileImage'),
+    async (req, res) => {
+        try {
+            if (!req.file) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'No file uploaded',
+                });
+            }
+
+            res.status(200).json({
+                success: true,
+                message: 'Image uploaded successfully',
+                imageUrl: req.file.path, // Cloudinary URL
+            });
+        } catch (error) {
+            console.error('Cloudinary Upload Error:', error);
+
+            res.status(500).json({
+                success: false,
+                message: 'Image upload failed',
+                error: error.message,
+            });
+        }
     }
-    const imageUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
-    res.status(200).json({
-        message: 'File uploaded successfully',
-        imageUrl,
-    });
-});
+);
 
 module.exports = router;
