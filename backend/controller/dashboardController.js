@@ -1,8 +1,8 @@
 const Income = require('../models/Income');
 const Expense = require('../models/Expense');
-const { isValidObjectId, Types } = require('mongoose');
+const { Types } = require('mongoose');
 
-// DashBoard Data
+// Dashboard Data
 exports.getDashboardData = async (req, res) => {
     try {
         const userId = req.user._id;
@@ -13,73 +13,136 @@ exports.getDashboardData = async (req, res) => {
         const incomeRange = range || 60;
         const expenseRange = range || 30;
 
-        // Fetch total income and expense data for the user (exclude soft-deleted)
-        const totalIncome = await Income.aggregate([
-            { $match: { userId: userObjectId, isDeleted: { $ne: true } } },
-            { $group: { _id: null, total: { $sum: '$amount' } } },
-        ]);
-
-        const totalExpense = await Expense.aggregate([
-            { $match: { userId: userObjectId, isDeleted: { $ne: true } } },
-            { $group: { _id: null, total: { $sum: '$amount' } } },
-        ]);
-
-        // Get income transactions in last N days
-        const lastNDaysIncomeTransactions = await Income.find({
-            userId,
-            isDeleted: { $ne: true },
-            date: { $gte: new Date(Date.now() - incomeRange * 24 * 60 * 60 * 1000) },
-        }).sort({ date: -1 });
-
-        const IncomeLast60Days = lastNDaysIncomeTransactions.reduce(
-            (sum, transaction) => sum + transaction.amount, 0
+        const incomeStartDate = new Date(
+            Date.now() - incomeRange * 24 * 60 * 60 * 1000
         );
 
-        // Get expense transactions in last N days
-        const lastNDaysExpenseTransactions = await Expense.find({
-            userId,
-            isDeleted: { $ne: true },
-            date: { $gte: new Date(Date.now() - expenseRange * 24 * 60 * 60 * 1000) },
-        }).sort({ date: -1 });
-
-        const expensesLast30Days = lastNDaysExpenseTransactions.reduce(
-            (sum, transaction) => sum + transaction.amount, 0
+        const expenseStartDate = new Date(
+            Date.now() - expenseRange * 24 * 60 * 60 * 1000
         );
 
-        // Fetch last 5 transactions (income + expense), exclude soft-deleted
-        const lastTransactions = [
-            ...(await Income.find({ userId, isDeleted: { $ne: true } }).sort({ date: -1 }).limit(5)).map(
-                (txn) => ({
-                    ...txn.toObject(),
-                    type: 'income',
-                })
-            ),
-            ...(await Expense.find({ userId, isDeleted: { $ne: true } }).sort({ date: -1 }).limit(5)).map(
-                (txn) => ({
-                    ...txn.toObject(),
-                    type: 'expense',
-                })
-            ),
-        ].sort((a, b) => b.date - a.date);
+        // Run all database queries in parallel
+        const [
+            totalIncome,
+            totalExpense,
+            lastNDaysIncomeTransactions,
+            lastNDaysExpenseTransactions,
+            recentIncome,
+            recentExpense,
+        ] = await Promise.all([
 
-        // Final Response
-        res.json({
+            Income.aggregate([
+                {
+                    $match: {
+                        userId: userObjectId,
+                        isDeleted: { $ne: true },
+                    },
+                },
+                {
+                    $group: {
+                        _id: null,
+                        total: { $sum: '$amount' },
+                    },
+                },
+            ]),
+
+            Expense.aggregate([
+                {
+                    $match: {
+                        userId: userObjectId,
+                        isDeleted: { $ne: true },
+                    },
+                },
+                {
+                    $group: {
+                        _id: null,
+                        total: { $sum: '$amount' },
+                    },
+                },
+            ]),
+
+            Income.find({
+                userId,
+                isDeleted: { $ne: true },
+                date: { $gte: incomeStartDate },
+            })
+                .sort({ date: -1 })
+                .lean(),
+
+            Expense.find({
+                userId,
+                isDeleted: { $ne: true },
+                date: { $gte: expenseStartDate },
+            })
+                .sort({ date: -1 })
+                .lean(),
+
+            Income.find({
+                userId,
+                isDeleted: { $ne: true },
+            })
+                .sort({ date: -1 })
+                .limit(5)
+                .lean(),
+
+            Expense.find({
+                userId,
+                isDeleted: { $ne: true },
+            })
+                .sort({ date: -1 })
+                .limit(5)
+                .lean(),
+        ]);
+
+        // Calculate totals for last N days
+        const incomeLastNDaysTotal = lastNDaysIncomeTransactions.reduce(
+            (sum, transaction) => sum + transaction.amount,
+            0
+        );
+
+        const expenseLastNDaysTotal = lastNDaysExpenseTransactions.reduce(
+            (sum, transaction) => sum + transaction.amount,
+            0
+        );
+
+        // Merge recent transactions
+        const recentTransactions = [
+            ...recentIncome.map((txn) => ({
+                ...txn,
+                type: 'income',
+            })),
+            ...recentExpense.map((txn) => ({
+                ...txn,
+                type: 'expense',
+            })),
+        ]
+            .sort((a, b) => new Date(b.date) - new Date(a.date))
+            .slice(0, 5);
+
+        res.status(200).json({
             totalBalance:
                 (totalIncome[0]?.total || 0) - (totalExpense[0]?.total || 0),
+
             totalIncome: totalIncome[0]?.total || 0,
+
             totalExpense: totalExpense[0]?.total || 0,
+
             last30DaysExpenses: {
-                total: expensesLast30Days,
+                total: expenseLastNDaysTotal,
                 transactions: lastNDaysExpenseTransactions,
             },
+
             last60DaysIncome: {
-                total: IncomeLast60Days,
+                total: incomeLastNDaysTotal,
                 transactions: lastNDaysIncomeTransactions,
             },
-            recentTransactions: lastTransactions,
+
+            recentTransactions,
         });
+
     } catch (error) {
         console.error(error);
+
         res.status(500).json({
             success: false,
             message: 'Error fetching dashboard data',
