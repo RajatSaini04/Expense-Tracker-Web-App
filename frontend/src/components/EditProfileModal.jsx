@@ -92,7 +92,9 @@ const EditProfileModal = ({ isOpen, onClose }) => {
           setImage={setProfilePic}
           existingImageUrl={user?.profileImageUrl}
         />
-
+        <p className="text-xs text-gray-400 mt-2">
+          JPG, JPEG, PNG • Max 5 MB
+        </p>
         <Input
           type="text"
           value={fullname}
