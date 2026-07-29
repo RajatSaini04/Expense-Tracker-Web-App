@@ -15,6 +15,7 @@ import Expense from './pages/Dashboard/Expense';
 import RecycleBin from './pages/Dashboard/RecycleBin';
 import UserProvider from './context/UserContext';
 import { Toaster } from "react-hot-toast";
+import { Analytics } from '@vercel/analytics/react';
 
 
 const App = () => {
@@ -43,6 +44,7 @@ const App = () => {
           },
         }}
       />
+      <Analytics />
     </UserProvider>
   )
 }
